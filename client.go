@@ -171,7 +171,7 @@ type Client struct {
 	atomicNamespaces atomic.Value // []string
 
 	// monitorOnce ensures only one connection monitor is running
-	monitorOnce sync.Once
+	MonitorOnce sync.Once
 }
 
 // NewClient creates a new Client.
@@ -254,11 +254,11 @@ func (c *Client) Connect(ctx context.Context) error {
 	}
 	c.setState(Connected)
 
-	mctx, mcancel := context.WithCancel(context.Background())
+	mctx, mcancel := context.WithCancel(ctx)
 	c.mcancel = mcancel
-	c.monitorOnce.Do(func() {
-		go c.monitor(mctx)
+	c.MonitorOnce.Do(func() {
 		go c.monitorSubscriptions(mctx)
+		c.monitor(mctx)
 	})
 
 	// todo(fs): we might need to guard this with an option in case of a broken
