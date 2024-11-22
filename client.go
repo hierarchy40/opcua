@@ -256,7 +256,7 @@ func (c *Client) Connect(ctx context.Context) error {
 
 	mctx, mcancel := context.WithCancel(ctx)
 	c.mcancel = mcancel
-	c.MonitorOnce.Do(func() {
+	go c.MonitorOnce.Do(func() {
 		go c.monitorSubscriptions(mctx)
 		c.monitor(mctx)
 	})
