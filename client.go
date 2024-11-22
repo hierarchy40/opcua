@@ -117,6 +117,7 @@ func SelectEndpoint(endpoints []*ua.EndpointDescription, policy string, mode ua.
 	return nil
 }
 
+type DisconnectHandler func()
 type bySecurityLevel []*ua.EndpointDescription
 
 func (a bySecurityLevel) Len() int           { return len(a) }
@@ -171,7 +172,16 @@ type Client struct {
 	atomicNamespaces atomic.Value // []string
 
 	// monitorOnce ensures only one connection monitor is running
-	MonitorOnce sync.Once
+	monitorOnce sync.Once
+
+	// disconnectCallback
+	disconnectHandler DisconnectHandler
+
+	// max timeouts in a row before terminating the connection default: 5
+	MaxTimeoutCount uint
+
+	// timeout counter
+	timeoutCount uint
 }
 
 // NewClient creates a new Client.
@@ -191,13 +201,14 @@ func NewClient(endpoint string, opts ...Option) (*Client, error) {
 		return nil, err
 	}
 	c := Client{
-		endpointURL: endpoint,
-		cfg:         cfg,
-		sechanErr:   make(chan error, 1),
-		subs:        make(map[uint32]*Subscription),
-		pendingAcks: make([]*ua.SubscriptionAcknowledgement, 0),
-		pausech:     make(chan struct{}, 2),
-		resumech:    make(chan struct{}, 2),
+		endpointURL:     endpoint,
+		cfg:             cfg,
+		sechanErr:       make(chan error, 1),
+		subs:            make(map[uint32]*Subscription),
+		pendingAcks:     make([]*ua.SubscriptionAcknowledgement, 0),
+		pausech:         make(chan struct{}, 2),
+		resumech:        make(chan struct{}, 2),
+		MaxTimeoutCount: 5,
 	}
 	c.pauseSubscriptions(context.Background())
 	c.setPublishTimeout(uasc.MaxTimeout)
@@ -256,9 +267,12 @@ func (c *Client) Connect(ctx context.Context) error {
 
 	mctx, mcancel := context.WithCancel(ctx)
 	c.mcancel = mcancel
-	go c.MonitorOnce.Do(func() {
+	go c.monitorOnce.Do(func() {
 		go c.monitorSubscriptions(mctx)
 		c.monitor(mctx)
+		if c.disconnectHandler != nil {
+			c.disconnectHandler()
+		}
 	})
 
 	// todo(fs): we might need to guard this with an option in case of a broken
@@ -273,6 +287,10 @@ func (c *Client) Connect(ctx context.Context) error {
 	}
 
 	return nil
+}
+
+func (c *Client) SetDisconnectHandler(handler DisconnectHandler) {
+	c.disconnectHandler = handler
 }
 
 // monitor manages connection alteration

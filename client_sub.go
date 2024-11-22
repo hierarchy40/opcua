@@ -399,6 +399,9 @@ func (c *Client) publish(ctx context.Context) error {
 	// note that res contains data even if an error was returned
 	res, err := c.sendPublishRequest(ctx)
 	stats.RecordError(err)
+	if err != ua.StatusBadTimeout {
+		c.timeoutCount = 0
+	}
 	switch {
 	case err == io.EOF:
 		dlog.Printf("eof: pausing publish loop")
@@ -434,6 +437,10 @@ func (c *Client) publish(ctx context.Context) error {
 	case err == ua.StatusBadTimeout:
 		// ignore and continue the loop
 		dlog.Printf("error: ignoring: %s", err)
+		c.timeoutCount++
+		if c.MaxTimeoutCount > 0 && c.timeoutCount > c.MaxTimeoutCount {
+			c.mcancel()
+		}
 
 	case err == ua.StatusBadNoSubscription:
 		// All subscriptions have been deleted, but the publishing loop is still running
