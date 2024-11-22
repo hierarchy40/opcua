@@ -1,4 +1,4 @@
-module github.com/gopcua/opcua
+module github.com/hierarchy40/opcua
 
 go 1.20
 
