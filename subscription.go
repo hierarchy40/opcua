@@ -6,12 +6,12 @@ import (
 	"sync"
 	"time"
 
-	"github.com/gopcua/opcua/debug"
-	"github.com/gopcua/opcua/errors"
-	"github.com/gopcua/opcua/id"
-	"github.com/gopcua/opcua/stats"
-	"github.com/gopcua/opcua/ua"
-	"github.com/gopcua/opcua/uasc"
+	"github.com/hierarchy40/opcua/debug"
+	"github.com/hierarchy40/opcua/errors"
+	"github.com/hierarchy40/opcua/id"
+	"github.com/hierarchy40/opcua/stats"
+	"github.com/hierarchy40/opcua/ua"
+	"github.com/hierarchy40/opcua/uasc"
 )
 
 const (

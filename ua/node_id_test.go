@@ -11,7 +11,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/gopcua/opcua/errors"
+	"github.com/hierarchy40/opcua/errors"
 )
 
 func TestNodeID(t *testing.T) {

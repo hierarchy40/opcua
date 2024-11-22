@@ -9,7 +9,7 @@ import (
 
 	"github.com/pascaldekloe/goe/verify"
 
-	"github.com/gopcua/opcua"
+	"github.com/hierarchy40/opcua"
 )
 
 func TestNamespace(t *testing.T) {

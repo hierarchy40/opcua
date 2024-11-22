@@ -9,8 +9,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gopcua/opcua"
-	"github.com/gopcua/opcua/errors"
+	"github.com/hierarchy40/opcua"
+	"github.com/hierarchy40/opcua/errors"
 )
 
 const (

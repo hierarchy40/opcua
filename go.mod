@@ -11,6 +11,6 @@ require (
 require golang.org/x/sys v0.8.0 // indirect
 
 retract (
-	v0.2.5 // https://github.com/gopcua/opcua/issues/538
-	v0.2.4 // https://github.com/gopcua/opcua/issues/538
+	v0.2.5 // https://github.com/hierarchy40/opcua/issues/538
+	v0.2.4 // https://github.com/hierarchy40/opcua/issues/538
 )
